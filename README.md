@@ -24,6 +24,42 @@ npm ci
 npm start
 ```
 
+## OR run start watch
+```sh
+npm run start:watch
+```
+
+## Database tables
+```sh
+user
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `email` varchar(255) DEFAULT NULL,
+  `first_name` varchar(255) DEFAULT NULL,
+  `last_name` varchar(255) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `status` tinyint(1) DEFAULT NULL,
+  `permission_id` int(11) DEFAULT NULL,
+  `permissions` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`),
+  KEY `user_to_permission` (`permission_id`),
+  CONSTRAINT `user_to_permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=latin1;
+
+refresh_token
+CREATE TABLE `refresh_token` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `refresh_token` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_to_refresh_token` (`user_id`),
+  CONSTRAINT `user_to_refresh_token` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=latin1;
+```
+
 You can also run `node .` to skip the build step.
 
 Open http://127.0.0.1:3000 in your browser.
