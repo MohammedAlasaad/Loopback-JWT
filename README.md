@@ -29,6 +29,10 @@ npm start
 npm run start:watch
 ```
 
+You can also run `node .` to skip the build step.
+
+Open http://127.0.0.1:3000 in your browser.
+
 ## Database tables
 ```sh
 user
@@ -59,10 +63,6 @@ CREATE TABLE `refresh_token` (
   CONSTRAINT `user_to_refresh_token` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=latin1;
 ```
-
-You can also run `node .` to skip the build step.
-
-Open http://127.0.0.1:3000 in your browser.
 
 ## Rebuild the project
 
