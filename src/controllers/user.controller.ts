@@ -89,6 +89,39 @@ export type NewUserRequest = {
   password: string;
 };
 
+
+const changePasswordRequestSchema: SchemaObject = {
+  type: 'object',
+  required: ['current_password', 'new_password', 'confirm_new_password'],
+  properties: {
+    current_password: {
+      type: 'string'
+    },
+    new_password: {
+      type: 'string',
+      minLength: 8,
+    },
+    confirm_new_password: {
+      type: 'string',
+      minLength: 8,
+    }
+  },
+};
+
+export const changePasswordRequestBody = {
+  description: 'Change password',
+  required: true,
+  content: {
+    'application/json': {schema: changePasswordRequestSchema},
+  },
+};
+
+export type changePasswordRequest = {
+  current_password: string;
+  new_password: string;
+  confirm_new_password: string;
+};
+
 @authenticate({strategy: 'jwt', options: {required: [PermissionKey.SuperUser]}})
 export class UserController {
   constructor(
@@ -366,4 +399,57 @@ export class UserController {
   async deleteById(@param.path.number('id') id: number): Promise<void> {
     await this.userRepository.deleteById(id);
   }
+
+
+  @patch('/user/change-password', {
+    responses: {
+      '204': {
+        description: 'User PATCH success',
+      },
+    },
+  })
+  @authenticate({strategy: 'jwt', options: {required: [PermissionKey.Union]}})
+  async changePassword(
+    @requestBody(changePasswordRequestBody)
+    changePasswordRequest: changePasswordRequest,
+  ): Promise<void> {
+
+    // If password does not match!
+    if (changePasswordRequest.new_password !== changePasswordRequest.confirm_new_password) {
+      throw new HttpErrors.BadRequest('Password does\'t match.');
+    }
+
+    var currentUser = await this.getCurrentUser()
+
+    if (!currentUser) {
+      throw new HttpErrors.BadRequest('User does\'t exist.');
+
+    } else {
+
+      const foundUser = await this.userRepository.findOne({
+        where: {id: Number(currentUser.id)},
+      });
+
+      if (foundUser && foundUser.password) {
+        var compareResult = compareSync(changePasswordRequest.current_password, foundUser.password);
+
+        if (!compareResult) {
+          throw new HttpErrors.Unauthorized('Old password isn\'t valid');
+        }
+
+        // Change password now!
+        const passwordHash = await hash(changePasswordRequest.new_password, await genSalt());
+
+        const patchedUser = {
+          password: passwordHash,
+        }
+        await this.userRepository.updateById(Number(currentUser.id), patchedUser)
+
+      } else {
+        throw new HttpErrors.BadRequest('User does\'t exist.');
+      }
+    }
+  }
+
+
 }
