@@ -1,24 +1,24 @@
-import { AuthenticationComponent, registerAuthenticationStrategy } from '@loopback/authentication';
-import { JWTAuthenticationComponent, SECURITY_SCHEME_SPEC } from '@loopback/authentication-jwt';
-import { BootMixin } from '@loopback/boot';
-import { ApplicationConfig } from '@loopback/core';
-import { RepositoryMixin } from '@loopback/repository';
-import { RestApplication } from '@loopback/rest';
+import {AuthenticationComponent, registerAuthenticationStrategy} from '@loopback/authentication';
+import {JWTAuthenticationComponent, SECURITY_SCHEME_SPEC} from '@loopback/authentication-jwt';
+import {BootMixin} from '@loopback/boot';
+import {ApplicationConfig} from '@loopback/core';
+import {RepositoryMixin} from '@loopback/repository';
+import {RestApplication} from '@loopback/rest';
 import {
   RestExplorerBindings,
   RestExplorerComponent
 } from '@loopback/rest-explorer';
-import { ServiceMixin } from '@loopback/service-proxy';
+import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
-import { MyAuthBindings, RefreshTokenConstants, RefreshTokenServiceBindings } from './authorization/keys';
-import { JWTService } from './authorization/services/JWT.service';
-import { RefreshtokenService } from './authorization/services/refreshtoken.service';
+import {MyAuthBindings, RefreshTokenConstants, RefreshTokenServiceBindings} from './authorization/keys';
+import {JWTService} from './authorization/services/JWT.service';
+import {RefreshtokenService} from './authorization/services/refreshtoken.service';
 //import {MyUserService} from './authorization/services/user.service';
-import { JWTStrategy } from './authorization/strategies/JWT.strategy';
-import { UserPermissionsProvider } from './providers/user-permissions.provider';
-import { MySequence } from './sequence';
+import {JWTStrategy} from './authorization/strategies/JWT.strategy';
+import {UserPermissionsProvider} from './providers/user-permissions.provider';
+import {MySequence} from './sequence';
 
-export { ApplicationConfig };
+export {ApplicationConfig};
 
 export class AppApplication extends BootMixin(
   ServiceMixin(RepositoryMixin(RestApplication)),
@@ -26,17 +26,19 @@ export class AppApplication extends BootMixin(
   constructor(options: ApplicationConfig = {}) {
     super(options);
 
-    this.bind(RefreshTokenServiceBindings.REFRESH_TOKEN_SERVICE).toClass(RefreshtokenService);
-    this.bind(RefreshTokenServiceBindings.REFRESH_SECRET).to(RefreshTokenConstants.REFRESH_SECRET_VALUE)
-    this.bind(RefreshTokenServiceBindings.REFRESH_ISSUER).to(RefreshTokenConstants.REFRESH_ISSUER_VALUE)
-    this.bind(RefreshTokenServiceBindings.REFRESH_EXPIRES_IN).to(RefreshTokenConstants.REFRESH_EXPIRES_IN_VALUE)
-
     // Bind authentication component related elements
     this.component(AuthenticationComponent)
 
     this.addSecuritySpec();
 
     this.component(JWTAuthenticationComponent);
+
+
+    // Keep this bind after this.component(JWTAuthenticationComponent)
+    this.bind(RefreshTokenServiceBindings.REFRESH_TOKEN_SERVICE).toClass(RefreshtokenService);
+    this.bind(RefreshTokenServiceBindings.REFRESH_SECRET).to(RefreshTokenConstants.REFRESH_SECRET_VALUE)
+    this.bind(RefreshTokenServiceBindings.REFRESH_ISSUER).to(RefreshTokenConstants.REFRESH_ISSUER_VALUE)
+    this.bind(RefreshTokenServiceBindings.REFRESH_EXPIRES_IN).to(RefreshTokenConstants.REFRESH_EXPIRES_IN_VALUE)
 
     // Bind JWT & permission authentication strategy related elements
     registerAuthenticationStrategy(this as any, JWTStrategy);
@@ -77,14 +79,14 @@ export class AppApplication extends BootMixin(
         version: '1.0.0',
       },
       paths: {},
-      components: { securitySchemes: SECURITY_SCHEME_SPEC },
+      components: {securitySchemes: SECURITY_SCHEME_SPEC},
       security: [
         {
           // secure all endpoints with 'jwt'
           jwt: [],
         },
       ],
-      servers: [{ url: '/' }],
+      servers: [{url: '/'}],
     });
   }
 

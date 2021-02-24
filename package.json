@@ -35,7 +35,7 @@
     "prestart": "npm run rebuild",
     "start": "node -r source-map-support/register .",
     "clean": "lb-clean dist *.tsbuildinfo .eslintcache",
-    "start:watch": "tsc-watch --target es2017 --outDir ./dist --onSuccess \"node .\""
+    "start:watch": "export ACCESS_TOKEN=123456 && export REFRESH_TOKEN=123456 && export DB_PASSWORD=root && tsc-watch --target es2017 --outDir ./dist --onSuccess \"node .\""
   },
   "repository": {
     "type": "git",

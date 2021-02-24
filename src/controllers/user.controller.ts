@@ -1,5 +1,5 @@
-import { authenticate, AuthenticationBindings } from '@loopback/authentication';
-import { Getter, inject } from '@loopback/core';
+import {authenticate, AuthenticationBindings} from '@loopback/authentication';
+import {Getter, inject} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -17,15 +17,15 @@ import {
   RestBindings,
   SchemaObject
 } from '@loopback/rest';
-import { toJSON } from '@loopback/testlab';
-import { compareSync, genSalt, hash } from 'bcryptjs';
+import {toJSON} from '@loopback/testlab';
+import {compareSync, genSalt, hash} from 'bcryptjs';
 import * as _ from 'lodash';
-import { MyAuthBindings, RefreshTokenServiceBindings, TokenServiceConstants } from '../authorization/keys';
-import { PermissionKey } from '../authorization/permission-key';
-import { User } from '../models';
-import { UserRepository } from '../repositories';
-import { JWTService } from './../authorization/services/JWT.service';
-import { Credential, CredentialsRequestBody, MyUserProfile, RefreshTokenService, TokenObject, UserRequestBody } from './../authorization/types';
+import {MyAuthBindings, RefreshTokenServiceBindings} from '../authorization/keys';
+import {PermissionKey} from '../authorization/permission-key';
+import {User} from '../models';
+import {UserRepository} from '../repositories';
+import {JWTService} from './../authorization/services/JWT.service';
+import {Credential, CredentialsRequestBody, MyUserProfile, RefreshTokenService, TokenObject, UserRequestBody} from './../authorization/types';
 
 
 // Describes the type of grant object taken in by method "refresh"
@@ -49,7 +49,7 @@ const RefreshGrantRequestBody = {
   description: 'Reissuing Acess Token',
   required: true,
   content: {
-    'application/json': { schema: RefreshGrantSchema },
+    'application/json': {schema: RefreshGrantSchema},
   },
 };
 
@@ -78,7 +78,7 @@ export const NewUserRequestBody = {
   description: 'Create new user',
   required: true,
   content: {
-    'application/json': { schema: NewUserRequestSchema },
+    'application/json': {schema: NewUserRequestSchema},
   },
 };
 
@@ -89,7 +89,7 @@ export type NewUserRequest = {
   password: string;
 };
 
-@authenticate({ strategy: 'jwt', options: { required: [PermissionKey.SuperUser] } })
+@authenticate({strategy: 'jwt', options: {required: [PermissionKey.SuperUser]}})
 export class UserController {
   constructor(
     @repository(UserRepository) public userRepository: UserRepository,
@@ -135,7 +135,7 @@ export class UserController {
     // ensure the user exists, and the password is correct
 
     const foundUser = await this.userRepository.findOne({
-      where: { email: credentials.email },
+      where: {email: credentials.email},
     });
     if (!foundUser || !foundUser.password) {
       throw new HttpErrors.Unauthorized(
@@ -162,7 +162,6 @@ export class UserController {
       accessToken
     );
 
-    tokens.expiresIn = TokenServiceConstants.TOKEN_EXPIRES_IN_VALUE // Return expiresIn with object
     return tokens;
   }
 
@@ -226,12 +225,12 @@ export class UserController {
     responses: {
       '200': {
         description: 'User model instance',
-        content: { 'application/json': { schema: getModelSchemaRef(User) } },
+        content: {'application/json': {schema: getModelSchemaRef(User)}},
       },
     },
   })
   async create(
-    @requestBody({ UserRequestBody }) user: User
+    @requestBody({UserRequestBody}) user: User
   ): Promise<User> {
     user.permissions = [PermissionKey.ViewOwnUser,
     PermissionKey.CreateUser,
@@ -250,7 +249,7 @@ export class UserController {
           'application/json': {
             schema: {
               type: 'array',
-              items: getModelSchemaRef(User, { includeRelations: true }),
+              items: getModelSchemaRef(User, {includeRelations: true}),
             },
           },
         },
@@ -267,7 +266,7 @@ export class UserController {
     responses: {
       '200': {
         description: 'User PATCH success count',
-        content: { 'application/json': { schema: CountSchema } },
+        content: {'application/json': {schema: CountSchema}},
       },
     },
   })
@@ -275,7 +274,7 @@ export class UserController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(User, { partial: true }),
+          schema: getModelSchemaRef(User, {partial: true}),
         },
       },
     })
@@ -291,7 +290,7 @@ export class UserController {
         description: 'User model instance',
         content: {
           'application/json': {
-            schema: getModelSchemaRef(User, { includeRelations: true }),
+            schema: getModelSchemaRef(User, {includeRelations: true}),
           },
         },
       },
@@ -299,7 +298,7 @@ export class UserController {
   })
   findById(
     @param.path.number('id') id: number,
-    @param.filter(User, { exclude: 'where' }) filter?: FilterExcludingWhere<User>
+    @param.filter(User, {exclude: 'where'}) filter?: FilterExcludingWhere<User>
   ): Promise<User> {
     return this.userRepository.findById(id, filter);
   }
@@ -310,13 +309,13 @@ export class UserController {
         description: 'User model instance',
         content: {
           'application/json': {
-            schema: getModelSchemaRef(User, { includeRelations: true }),
+            schema: getModelSchemaRef(User, {includeRelations: true}),
           },
         },
       },
     },
   })
-  @authenticate({ strategy: 'jwt', options: { required: [] } }) // TODO
+  @authenticate({strategy: 'jwt', options: {required: []}}) // TODO
   async currentUser(
   ): Promise<MyUserProfile> {
     return this.getCurrentUser()
@@ -334,7 +333,7 @@ export class UserController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(User, { partial: true }),
+          schema: getModelSchemaRef(User, {partial: true}),
         },
       },
     })
