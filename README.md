@@ -36,7 +36,7 @@ For your enviroment variable you need to have:
 ACCESS_TOKEN
 REFRESH_TOKEN
 DB_PASSWORD
-For developemtn we have these on package.json when we run
+For development we have these on package.json when we run
 npm run start:watch
 export ACCESS_TOKEN=123456 && export REFRESH_TOKEN=123456 && export DB_PASSWORD=root && ...
 ```
